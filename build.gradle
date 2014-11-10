@@ -1,0 +1,62 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'eclipse-wtp'  
+
+ext.version 				= "0.1"
+
+ext.nettyVersion 			= "4.0.23.Final"
+ext.jacksonVersion 			= "1.9.7"
+ext.springVersion  			= "3.2.8.RELEASE"
+ext.hessianVersion	        = "4.0.38"
+
+compileJava {
+	sourceCompatibility=1.6
+	targetCompatibility=1.6
+	options.encoding = "UTF-8"
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'tangerine', 'Implementation-Version': project.version
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'io.netty:netty-all:' 							+ nettyVersion,
+			'org.codehaus.jackson:jackson-mapper-asl:' 		+ jacksonVersion,
+			'org.springframework:spring-core:' 				+ springVersion,
+			'org.springframework:spring-context:' 			+ springVersion,
+			'com.caucho:hessian:'							+ hessianVersion
+				
+    testCompile "junit:junit:4.11"
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs 'repos'
+       }
+    }
+}
+
+///////////////////////////////////eclipse wpt plugin///////////////////////////////////
+eclipse.classpath.file {
+	withXml {
+		def classpath = it.asNode()
+		//删除所有lib
+		classpath.children().removeAll { entry -> entry.attribute("kind") == "lib" }
+		//添加gradle dependencies 类库并发布到/WEB-INF/lib目录
+		def classpathcontainer = [exported: "true", kind: "con", path: "org.springsource.ide.eclipse.gradle.classpathcontainer"]
+		def gradleClasspathentry = classpath.appendNode("classpathentry", classpathcontainer)
+		def dependencyAttr = [name: "org.eclipse.jst.component.dependency", value: "../"]
+		gradleClasspathentry.appendNode("attributes").appendNode("attribute", dependencyAttr)
+	}
+}
