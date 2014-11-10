@@ -18,4 +18,5 @@ public interface Connector {
 	public ByteBuffer encode(Packet packet);
 	
 	public Packet decode(ByteBuffer buffer);
+	
 }
