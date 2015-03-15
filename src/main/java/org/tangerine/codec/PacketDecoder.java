@@ -7,7 +7,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 
 import org.tangerine.Constant.Config;
-import org.tangerine.Constant.PacketType;
+import org.tangerine.Constant.MSGType;
 import org.tangerine.components.RouteDictionary;
 import org.tangerine.protocol.Message;
 import org.tangerine.protocol.Packet;
@@ -34,15 +34,15 @@ public class PacketDecoder extends ByteToMessageDecoder{
 			message.setMessageType(message.getMessageType(flag));
 			message.setRouteFlag(message.getRouteFlag(flag));
 			
-			if (message.getMessageType().equals(PacketType.TYPE_REQUEST)
-					|| message.getMessageType().equals(PacketType.TYPE_RESPONSE)) {
+			if (message.getMessageType().equals(MSGType.MSG_REQUEST)
+					|| message.getMessageType().equals(MSGType.MSG_RESPONSE)) {
 				message.setMessageId(buf.readInt());
 			}
 			
 			/**只有REQUEST和NOTIFY和PUSH才需要route **/
-			if (packet.getMessage().getMessageType().equals(PacketType.TYPE_REQUEST)
-					|| packet.getMessage().getMessageType().equals(PacketType.TYPE_NOTIFY)
-					|| packet.getMessage().getMessageType().equals(PacketType.TYPE_PUSH)) {
+			if (packet.getMessage().getMessageType().equals(MSGType.MSG_REQUEST)
+					|| packet.getMessage().getMessageType().equals(MSGType.MSG_NOTIFY)
+					|| packet.getMessage().getMessageType().equals(MSGType.MSG_PUSH)) {
 				
 				if (!message.getRouteFlag()) {
 					byte routePathLength = buf.readByte();
