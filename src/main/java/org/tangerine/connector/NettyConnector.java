@@ -13,12 +13,17 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.AttributeKey;
 
+import org.tangerine.codec.MessageDecoder;
+import org.tangerine.codec.MessageEncoder;
 import org.tangerine.codec.PacketDecoder;
 import org.tangerine.codec.PacketEncoder;
 import org.tangerine.net.Connection;
+import org.tangerine.net.MessageRouter;
+import org.tangerine.net.PacketHandler;
+import org.tangerine.protocol.Message;
 import org.tangerine.protocol.Packet;
 
-public abstract class NettyConnector extends ChannelDuplexHandler implements Connector {
+public class NettyConnector extends ChannelDuplexHandler implements Connector {
 	
 	private String host;
 	private Integer port;
@@ -26,9 +31,15 @@ public abstract class NettyConnector extends ChannelDuplexHandler implements Con
 	private Channel channel;
 	private static final AttributeKey<Connection> connectionAttr = AttributeKey.valueOf("CONNECTION");
 	
+	private PacketHandler packetHandler;
+	private MessageRouter messageRouter;
+	
 	public NettyConnector(String host, Integer port) {
 		this.host = host;
 		this.port = port;
+		
+		this.packetHandler = new PacketHandler();
+		this.messageRouter = new MessageRouter();
 	}
 	
 	@Override
@@ -62,11 +73,11 @@ public abstract class NettyConnector extends ChannelDuplexHandler implements Con
 
 		@Override
 		public void initChannel(SocketChannel ch) throws Exception {
-			ch.pipeline().addLast(
-					new PacketDecoder(),
-					new PacketEncoder(),
-					this
-				);
+			ch.pipeline().addLast("packetDecoder",  new PacketDecoder());
+			ch.pipeline().addLast("packetEncoder",  new PacketEncoder());
+			ch.pipeline().addLast("messageDecoder",  new MessageDecoder());
+			ch.pipeline().addLast("messageEncoder",  new MessageEncoder());
+			ch.pipeline().addLast("messageHandler",  this);
 		}
 	}
 	
@@ -84,28 +95,21 @@ public abstract class NettyConnector extends ChannelDuplexHandler implements Con
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		
-		if(!(msg instanceof Packet)) {
+		Connection connection = ctx.attr(connectionAttr).get();
+		
+		if(msg instanceof Packet) {
+			
+			packetHandler.handle(connection, (Packet) msg);
+			
+		} else if(msg instanceof Message) {
+			
+			messageRouter.route(connection, (Message) msg);
+			
+		} else {
+			connection.close();
 			throw new Exception("unknown packet data !");
 		} 
-		
-		Packet packet = (Packet) msg;
-		
-		try {
-			dispatchPacket(ctx.attr(connectionAttr).get(), packet);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			Connection connection = (Connection) ctx.attr(connectionAttr);
-            connection.close();
-		}
 	}
-	/**
-	 * 分发数据包
-	 * @param connection
-	 * @param packet
-	 */
-	public abstract void dispatchPacket(Connection connection, Packet packet);
-	
 	/**
 	 * 断开连接
 	 */

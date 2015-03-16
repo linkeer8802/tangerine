@@ -2,6 +2,9 @@ package org.tangerine.net;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.ScheduledFuture;
+
+import java.util.concurrent.TimeUnit;
 
 import org.tangerine.protocol.Packet;
 
@@ -27,6 +30,20 @@ public class Connection {
 		
 		ctx.writeAndFlush(packet);
 		
+	}
+	/**
+	 * 延迟(单位为毫秒)发送数据包
+	 * @param packet
+	 * @param delay
+	 * @return ScheduledFuture
+	 */
+	public ScheduledFuture<?> scheduleDeliver(final Packet packet, long delay) {
+		return ctx.executor().schedule(new Runnable() {
+			@Override
+			public void run() {
+				ctx.writeAndFlush(packet);
+			}
+		}, delay, TimeUnit.MILLISECONDS);
 	}
 	
 	public void init(Session session) {

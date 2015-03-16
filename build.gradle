@@ -30,7 +30,8 @@ dependencies {
 			'org.codehaus.jackson:jackson-mapper-asl:' 		+ jacksonVersion,
 			'org.springframework:spring-core:' 				+ springVersion,
 			'org.springframework:spring-context:' 			+ springVersion,
-			'com.caucho:hessian:'							+ hessianVersion
+			'com.caucho:hessian:'							+ hessianVersion,
+			'com.google.code.gson:gson:2.3'
 				
     testCompile "junit:junit:4.11"
 }
