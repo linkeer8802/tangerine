@@ -13,10 +13,8 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.AttributeKey;
 
-import org.tangerine.codec.MessageDecoder;
-import org.tangerine.codec.MessageEncoder;
-import org.tangerine.codec.PacketDecoder;
-import org.tangerine.codec.PacketEncoder;
+import org.tangerine.codec.Decoder;
+import org.tangerine.codec.Encoder;
 import org.tangerine.net.Connection;
 import org.tangerine.net.MessageRouter;
 import org.tangerine.net.PacketHandler;
@@ -73,10 +71,8 @@ public class NettyConnector extends ChannelDuplexHandler implements Connector {
 
 		@Override
 		public void initChannel(SocketChannel ch) throws Exception {
-			ch.pipeline().addLast("packetDecoder",  new PacketDecoder());
-			ch.pipeline().addLast("packetEncoder",  new PacketEncoder());
-			ch.pipeline().addLast("messageDecoder",  new MessageDecoder());
-			ch.pipeline().addLast("messageEncoder",  new MessageEncoder());
+			ch.pipeline().addLast("packetDecoder",  new Decoder());
+			ch.pipeline().addLast("packetEncoder",  new Encoder());
 			ch.pipeline().addLast("messageHandler",  this);
 		}
 	}

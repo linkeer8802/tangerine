@@ -1,5 +1,14 @@
 package org.tangerine.protocol;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+
+import org.tangerine.Constant.Config;
+import org.tangerine.Constant.MSGType;
+import org.tangerine.components.RouteDictionary;
+
+import io.netty.buffer.ByteBuf;
+
 public class Message {
 
 	private Byte messageType;
@@ -83,5 +92,76 @@ public class Message {
 		}
 		
 		return flag;
+	}
+	
+	public static Message decode(ByteBuf buf) {
+		
+		Message message = new Message();
+		
+		byte flag = buf.readByte();
+		message.setMessageType(message.getMessageType(flag));
+		message.setRouteFlag(message.getRouteFlag(flag));
+		
+		/**只有REQUEST和NOTIFY和RESPONSE才需要MessageId **/
+		if (message.getMessageType().equals(MSGType.MSG_REQUEST)
+				|| message.getMessageType().equals(MSGType.MSG_RESPONSE)) {
+			message.setMessageId(buf.readInt());
+		}
+		
+		/**只有REQUEST和NOTIFY和PUSH才需要route **/
+		if (message.getMessageType().equals(MSGType.MSG_REQUEST)
+				|| message.getMessageType().equals(MSGType.MSG_NOTIFY)
+				|| message.getMessageType().equals(MSGType.MSG_PUSH)) {
+			
+			if (!message.getRouteFlag()) {
+				byte routePathLength = buf.readByte();
+				byte[] dst = new byte[routePathLength];
+				buf.readBytes(dst);
+				try {
+					message.setRoutePath(new String(dst, Config.DEFAULT_CHARTSET));
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+				
+			} else {
+				Short routeId = buf.readShort();
+				message.setRoutePath(routeId.toString());
+			}
+		}
+		
+		byte[] body = new byte[buf.readableBytes()];
+		buf.readBytes(body);
+		message.setBody(body);
+		
+		return message;
+	}
+	
+	public static void encode(Message message, ByteBuf out) {
+		
+		out.writeByte(message.getFlag());
+		
+		/**只有REQUEST和RESPONSE才需要messageId**/
+		if (message.getMessageType().equals(MSGType.MSG_REQUEST)
+				|| message.getMessageType().equals(MSGType.MSG_RESPONSE)) {
+			out.writeInt(message.getMessageId());
+		}
+		
+		/**只有REQUEST和NOTIFY和PUSH才需要route **/
+		if (message.getMessageType().equals(MSGType.MSG_REQUEST)
+				|| message.getMessageType().equals(MSGType.MSG_NOTIFY)
+				|| message.getMessageType().equals(MSGType.MSG_PUSH)) {
+			
+			if (!message.getRouteFlag()) {
+				out.writeByte(message.getRoutePath().getBytes().length);
+				out.writeBytes(message.getRoutePath().getBytes());
+				
+			} else {
+				Short routeId = RouteDictionary.getInstance().getRouteId(message.getRoutePath());
+				out.writeShort(routeId);
+			}
+		}
+		
+		/**message body**/
+		out.writeBytes(message.getBody());
 	}
 }

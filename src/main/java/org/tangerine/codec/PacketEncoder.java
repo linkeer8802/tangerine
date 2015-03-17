@@ -1,51 +1,31 @@
-package org.tangerine.codec;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToByteEncoder;
-
-import org.tangerine.Constant.MSGType;
-import org.tangerine.components.RouteDictionary;
-import org.tangerine.protocol.Packet;
-
-public class PacketEncoder extends MessageToByteEncoder<Packet>{
-
-	@Override
-	protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
-		/**
-		 * Packet
-		 */
-		out.writeByte(packet.getType());
-		out.writeShort(packet.getLength());
-		/**
-		 * Message
-		 */
-		out.writeByte(packet.getMessage().getFlag());
-		
-		/**只有REQUEST和RESPONSE才需要messageId**/
-		if (packet.getMessage().getMessageType().equals(MSGType.MSG_REQUEST)
-				|| packet.getMessage().getMessageType().equals(MSGType.MSG_RESPONSE)) {
-			out.writeInt(packet.getMessage().getMessageId());
-		}
-		
-		/**只有REQUEST和NOTIFY和PUSH才需要route **/
-		if (packet.getMessage().getMessageType().equals(MSGType.MSG_REQUEST)
-				|| packet.getMessage().getMessageType().equals(MSGType.MSG_NOTIFY)
-				|| packet.getMessage().getMessageType().equals(MSGType.MSG_PUSH)) {
-			
-			if (!packet.getMessage().getRouteFlag()) {
-				out.writeByte(packet.getMessage().getRoutePath().getBytes().length);
-				out.writeBytes(packet.getMessage().getRoutePath().getBytes());
-				
-			} else {
-				Short routeId = RouteDictionary.getInstance().getRouteId(packet.getMessage().getRoutePath());
-				out.writeShort(routeId);
-			}
-		}
-		
-		/**message body**/
-		out.writeBytes(packet.getMessage().getBody());
-
-	}
-
-}
+//package org.tangerine.codec;
+//
+//import io.netty.buffer.ByteBuf;
+//import io.netty.channel.ChannelHandlerContext;
+//import io.netty.handler.codec.MessageToByteEncoder;
+//
+//import org.tangerine.Constant.PacketType;
+//import org.tangerine.protocol.Message;
+//import org.tangerine.protocol.PacketEntity;
+//import org.tangerine.protocol.PacketHead;
+//
+//public class PacketEncoder extends MessageToByteEncoder<PacketEntity>{
+//
+//	@Override
+//	protected void encode(ChannelHandlerContext ctx, PacketEntity packet, ByteBuf out) throws Exception {
+//		/**
+//		 * 包头
+//		 */
+//		PacketHead.encode(packet.getPacketHead(), out);
+//		
+//		/**
+//		 * 数据包
+//		 */
+//		if (packet.getPacketHead().getType().equals(PacketType.PCK_DATA) &&
+//				packet.getBody() instanceof Message) {
+//			Message.encode((Message) packet.getBody(), out);
+//		} else {
+//			out.writeBytes((ByteBuf) packet.getBody());
+//		}
+//	}
+//}

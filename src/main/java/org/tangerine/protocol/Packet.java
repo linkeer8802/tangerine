@@ -1,65 +1,24 @@
 package org.tangerine.protocol;
 
-import org.tangerine.Constant.PacketType;
-import org.tangerine.util.JsonUtil;
-
 public class Packet {
 
-	private Byte type;
+	private PacketHead packetHead;
 	
-	private Short length;
-	
-	private byte[] body;
-	
-	public Packet() {}
-	
-	public Packet(Byte type, Object body) {
-		
-		byte[] bytes = JsonUtil.toJson(body).getBytes();
-		
-		this.type = type;
-		this.body = bytes;
-		this.length = (short) bytes.length;
-	}
-	
-	public static Packet buildHeartbeatPacket() {
-		
-		Packet packet = new Packet();
-		packet.setBody(null);
-		packet.setLength((short) 0);
-		packet.setType(PacketType.PCK_HEARTBEAT);
-		
-		return packet;
+	private Object body;
+
+	public PacketHead getPacketHead() {
+		return packetHead;
 	}
 
-	public Byte getType() {
-		return type;
+	public void setPacketHead(PacketHead packetHead) {
+		this.packetHead = packetHead;
 	}
 
-	public void setType(Byte type) {
-		this.type = type;
-	}
-
-	public Short getLength() {
-		return length;
-	}
-
-	public void setLength(Short length) {
-		this.length = length;
-	}
-	/**
-	 * type + length
-	 * @return
-	 */
-	public static int getHeadLength() {
-		return 3;
-	}
-
-	public byte[] getBody() {
+	public Object getBody() {
 		return body;
 	}
 
-	public void setBody(byte[] body) {
+	public void setBody(Object body) {
 		this.body = body;
 	}
 }

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.tangerine.Constant.MSGType;
 import org.tangerine.annotation.MessageMapping;
 import org.tangerine.protocol.Message;
 
@@ -30,7 +31,23 @@ public class MessageRouter {
 			if (messageMapping.type().equals(type) 
 					&& routePath.getAction().equals(messageMapping.value())) {
 				
-				method.invoke(routerHandler.getHandler(), getHandlerMethodArgs(method, connection, message));
+				ResponseMessage responseMessage = null;
+				if (type == MSGType.MSG_REQUEST) {
+					responseMessage = new ResponseMessage();
+					responseMessage.setMessageId(message.getMessageId());
+				}
+				
+				method.invoke(routerHandler.getHandler(), 
+						getHandlerMethodArgs(method, connection, message, responseMessage));
+				
+				if (responseMessage != null && responseMessage.getBody() != null) {
+					Message msg = new Message();
+					msg.setBody(responseMessage.getBody());
+					msg.setMessageId(responseMessage.getMessageId());
+					msg.setMessageType(MSGType.MSG_RESPONSE);
+					
+					connection.deliver(new P);
+				}
 				break;
 			}
 		}
@@ -49,7 +66,8 @@ public class MessageRouter {
 		return messageHandlers.get(handlerName);
 	}
 	
-	public Object[] getHandlerMethodArgs(Method method, Connection connection, Message message) throws Exception {
+	public Object[] getHandlerMethodArgs(Method method, Connection connection,
+			Message message, ResponseMessage responseMessage) throws Exception {
 		
 		List<Object> args = new ArrayList<Object>(method.getParameterCount());
 		Class<?>[] types = method.getParameterTypes();
@@ -62,7 +80,7 @@ public class MessageRouter {
 				args.add(message);
 				
 			} else if (clz.isAssignableFrom(ResponseMessage.class)) {
-				args.add(new ResponseMessage());
+				args.add(responseMessage);
 				
 			} else {
 				try {
