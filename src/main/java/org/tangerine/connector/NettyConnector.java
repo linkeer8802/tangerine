@@ -21,23 +21,16 @@ import org.tangerine.net.PacketHandler;
 import org.tangerine.protocol.Message;
 import org.tangerine.protocol.Packet;
 
-public class NettyConnector extends ChannelDuplexHandler implements Connector {
+public class NettyConnector implements Connector {
 	
 	private String host;
 	private Integer port;
 
 	private Channel channel;
-	private static final AttributeKey<Connection> connectionAttr = AttributeKey.valueOf("CONNECTION");
-	
-	private PacketHandler packetHandler;
-	private MessageRouter messageRouter;
 	
 	public NettyConnector(String host, Integer port) {
 		this.host = host;
 		this.port = port;
-		
-		this.packetHandler = new PacketHandler();
-		this.messageRouter = new MessageRouter();
 	}
 	
 	@Override
@@ -75,48 +68,5 @@ public class NettyConnector extends ChannelDuplexHandler implements Connector {
 			ch.pipeline().addLast("packetEncoder",  new Encoder());
 			ch.pipeline().addLast("messageHandler",  this);
 		}
-	}
-	
-	/**********************************Handler***********************************/
-	/**
-	 * 请求连接
-	 */
-	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		//新建Connection
-		Connection connection = new Connection(ctx);
-		ctx.attr(connectionAttr).set(connection);
-	}
-	
-	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		
-		Connection connection = ctx.attr(connectionAttr).get();
-		
-		if(msg instanceof Packet) {
-			
-			packetHandler.handle(connection, (Packet) msg);
-			
-		} else if(msg instanceof Message) {
-			
-			messageRouter.route(connection, (Message) msg);
-			
-		} else {
-			connection.close();
-			throw new Exception("unknown packet data !");
-		} 
-	}
-	/**
-	 * 断开连接
-	 */
-	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		
-	}
-	
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-			throws Exception {
-		cause.printStackTrace();
 	}
 }

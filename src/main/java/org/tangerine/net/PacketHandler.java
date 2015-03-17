@@ -1,5 +1,7 @@
 package org.tangerine.net;
 
+import io.netty.buffer.ByteBuf;
+
 import org.tangerine.Constant.Config;
 import org.tangerine.Constant.PacketType;
 import org.tangerine.protocol.Packet;
@@ -9,8 +11,8 @@ public class PacketHandler {
 
 	public void handle(Connection connection, Packet packet) throws Exception {
 		
-		byte type = packet.getType();
-		String body = new String(packet.getBody(), Config.DEFAULT_CHARTSET);
+		byte type = packet.getPacketHead().getType();
+		String body = new String(((ByteBuf)packet.getBody()).array(), Config.DEFAULT_CHARTSET);
 		
 		if (type == PacketType.PCK_HANDSHAKE) {
 			handleHandshake(connection, JsonUtil.fromJson(body, HandShakeRequest.class));

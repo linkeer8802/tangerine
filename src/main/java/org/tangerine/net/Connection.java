@@ -6,6 +6,7 @@ import io.netty.util.concurrent.ScheduledFuture;
 
 import java.util.concurrent.TimeUnit;
 
+import org.tangerine.protocol.Message;
 import org.tangerine.protocol.Packet;
 
 public class Connection {
@@ -30,6 +31,11 @@ public class Connection {
 		
 		ctx.writeAndFlush(packet);
 		
+	}
+	
+	public void deliver(Integer reqId, String route, Object body) {
+		Message message = new Message();
+		message.setMessageId(reqId);
 	}
 	/**
 	 * 延迟(单位为毫秒)发送数据包
