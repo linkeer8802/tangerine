@@ -9,15 +9,6 @@ public class RouteDictionary {
 	
 	private Map<String, Short> routePathToIdDictionarys = new HashMap<String, Short>();
 	
-	private static RouteDictionary instance = new RouteDictionary();
-	
-	private RouteDictionary() {
-	}
-	
-	public static RouteDictionary getInstance() {
-		return instance;
-	}
-	
 	public String getRoutePath(Short routeId) {
 		return routeIdToPathDictionarys.get(routeId);
 	}

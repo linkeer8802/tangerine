@@ -1,13 +1,12 @@
 package org.tangerine.protocol;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 
 import org.tangerine.Constant.Config;
 import org.tangerine.Constant.MSGType;
-import org.tangerine.components.RouteDictionary;
-
-import io.netty.buffer.ByteBuf;
 
 public class Message {
 
@@ -136,7 +135,9 @@ public class Message {
 		return message;
 	}
 	
-	public static void encode(Message message, ByteBuf out) {
+	public static ByteBuf encode(Message message) {
+		
+		ByteBuf out = Unpooled.buffer();
 		
 		out.writeByte(message.getFlag());
 		
@@ -156,12 +157,14 @@ public class Message {
 				out.writeBytes(message.getRoutePath().getBytes());
 				
 			} else {
-				Short routeId = RouteDictionary.getInstance().getRouteId(message.getRoutePath());
+				Short routeId = Short.valueOf(message.getRoutePath());
 				out.writeShort(routeId);
 			}
 		}
 		
 		/**message body**/
 		out.writeBytes(message.getBody());
+		
+		return out;
 	}
 }

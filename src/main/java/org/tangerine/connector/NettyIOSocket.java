@@ -1,26 +1,33 @@
 package org.tangerine.connector;
 
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.AttributeKey;
+
 import org.tangerine.net.Connection;
 import org.tangerine.net.MessageRouter;
 import org.tangerine.net.PacketHandler;
 import org.tangerine.protocol.Message;
 import org.tangerine.protocol.Packet;
 
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.AttributeKey;
-
-public class NettyChannelHandler extends ChannelDuplexHandler {
+public class NettyIOSocket extends ChannelDuplexHandler {
 	
 	private static final AttributeKey<Connection> connectionAttr = AttributeKey.valueOf("CONNECTION");
+	
+	private static final NettyIOSocket instance = new NettyIOSocket();
 	
 	private PacketHandler packetHandler;
 	private MessageRouter messageRouter;
 	
-	public NettyChannelHandler() {
+	protected NettyIOSocket() {
 		this.packetHandler = new PacketHandler();
 		this.messageRouter = new MessageRouter();
 	}
+	
+	public static NettyIOSocket getInstance() {
+		return instance;
+	}
+	
 	/**
 	 * 请求连接
 	 */
@@ -38,11 +45,14 @@ public class NettyChannelHandler extends ChannelDuplexHandler {
 		
 		if(msg instanceof Packet) {
 			
-			packetHandler.handle(connection, (Packet) msg);
+			Packet packet = (Packet) msg;
 			
-		} else if(msg instanceof Message) {
-			
-			messageRouter.route(connection, (Message) msg);
+			if (packet.getBody() instanceof Message) {
+				messageRouter.route(connection, (Message) msg);
+				
+			} else {
+				packetHandler.handle(connection, (Packet) msg);
+			}
 			
 		} else {
 			connection.close();

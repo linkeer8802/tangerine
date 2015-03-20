@@ -31,7 +31,8 @@ dependencies {
 			'org.springframework:spring-core:' 				+ springVersion,
 			'org.springframework:spring-context:' 			+ springVersion,
 			'com.caucho:hessian:'							+ hessianVersion,
-			'com.google.code.gson:gson:2.3'
+			'com.google.code.gson:gson:2.3',
+			'org.apache.commons:commons-lang3:3.3.2'
 				
     testCompile "junit:junit:4.11"
 }

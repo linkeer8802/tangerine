@@ -2,8 +2,6 @@ package org.tangerine.connector;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -11,15 +9,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.AttributeKey;
 
 import org.tangerine.codec.Decoder;
 import org.tangerine.codec.Encoder;
-import org.tangerine.net.Connection;
-import org.tangerine.net.MessageRouter;
-import org.tangerine.net.PacketHandler;
-import org.tangerine.protocol.Message;
-import org.tangerine.protocol.Packet;
 
 public class NettyConnector implements Connector {
 	
@@ -28,9 +20,13 @@ public class NettyConnector implements Connector {
 
 	private Channel channel;
 	
+	private NettyIOSocket ioSocket;
+	
 	public NettyConnector(String host, Integer port) {
 		this.host = host;
 		this.port = port;
+		
+		ioSocket = NettyIOSocket.getInstance();
 	}
 	
 	@Override
@@ -66,7 +62,7 @@ public class NettyConnector implements Connector {
 		public void initChannel(SocketChannel ch) throws Exception {
 			ch.pipeline().addLast("packetDecoder",  new Decoder());
 			ch.pipeline().addLast("packetEncoder",  new Encoder());
-			ch.pipeline().addLast("messageHandler",  this);
+			ch.pipeline().addLast("ioSocket",  ioSocket);
 		}
 	}
 }

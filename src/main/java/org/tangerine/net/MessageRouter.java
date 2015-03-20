@@ -32,21 +32,13 @@ public class MessageRouter {
 					&& routePath.getAction().equals(messageMapping.value())) {
 				
 				ResponseMessage responseMessage = null;
-				if (type == MSGType.MSG_REQUEST) {
-					responseMessage = new ResponseMessage();
-					responseMessage.setMessageId(message.getMessageId());
-				}
 				
-				method.invoke(routerHandler.getHandler(), 
+				Object result = method.invoke(routerHandler.getHandler(), 
 						getHandlerMethodArgs(method, connection, message, responseMessage));
 				
-				if (responseMessage != null && responseMessage.getBody() != null) {
-					Message msg = new Message();
-					msg.setBody(responseMessage.getBody());
-					msg.setMessageId(responseMessage.getMessageId());
-					msg.setMessageType(MSGType.MSG_RESPONSE);
+				if (type == MSGType.MSG_REQUEST) {
 					
-					connection.deliver(new P);
+					connection.deliver(message.getMessageId(), null, result);
 				}
 				break;
 			}

@@ -1,10 +1,14 @@
 package org.tangerine.net;
 
+import java.io.UnsupportedEncodingException;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.tangerine.Constant.Config;
 import org.tangerine.Constant.PacketType;
 import org.tangerine.protocol.Packet;
+import org.tangerine.protocol.PacketHead;
 import org.tangerine.util.JsonUtil;
 
 public class PacketHandler {
@@ -40,6 +44,14 @@ public class PacketHandler {
 		response.setCode(200);
 		response.setHeartbeat(3);
 		
-		connection.deliver(new Packet(PacketType.PCK_HANDSHAKE, response));
+		ByteBuf body = null;
+		try {
+			body = Unpooled.wrappedBuffer(JsonUtil
+					.toHtmlPrettyJson(response).getBytes(Config.DEFAULT_CHARTSET));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+		connection.deliver(new Packet(new PacketHead(PacketType.PCK_HANDSHAKE, body.readableBytes()), body));
 	}
 }

@@ -1,6 +1,7 @@
 package org.tangerine.protocol;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 
 public class PacketHead {
@@ -11,9 +12,9 @@ public class PacketHead {
 	
 	public PacketHead() {}
 
-	public PacketHead(Byte type, Short length) {
+	public PacketHead(byte type, int length) {
 		this.type = type;
-		this.length = length;
+		this.length = (short) length;
 	}
 	
 	public Byte getType() {
@@ -48,9 +49,11 @@ public class PacketHead {
 		return packetHead;
 	}
 	
-	public static void encode(PacketHead packetHead, ByteBuf out) {
-		
+	public static ByteBuf encode(PacketHead packetHead) {
+		ByteBuf out = Unpooled.buffer(getHeadLength());
 		out.writeByte(packetHead.getType());
 		out.writeShort(packetHead.getLength());
+		
+		return out;
 	}
 }

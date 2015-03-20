@@ -4,7 +4,7 @@ public class ResponseMessage {
 
 	private int messageId;
 	
-	private byte[] body;
+	private Object body;
 
 	public int getMessageId() {
 		return messageId;
@@ -14,11 +14,11 @@ public class ResponseMessage {
 		this.messageId = messageId;
 	}
 
-	public byte[] getBody() {
+	public Object getBody() {
 		return body;
 	}
 
-	public void setBody(byte[] body) {
+	public void setBody(Object body) {
 		this.body = body;
 	}
 }

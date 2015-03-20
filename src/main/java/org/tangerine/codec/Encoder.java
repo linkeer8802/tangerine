@@ -13,19 +13,30 @@ public class Encoder extends MessageToByteEncoder<Packet>{
 
 	@Override
 	protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
-		/**
-		 * 包头
-		 */
-		PacketHead.encode(packet.getPacketHead(), out);
+		
+		ByteBuf body = null;
+		
+		if (packet.getPacketHead().getType().equals(PacketType.PCK_DATA) &&
+				packet.getBody() instanceof Message) {
+			
+			body = Message.encode((Message) packet.getBody());
+			
+		} else {
+			if (packet.getBody() != null) {
+				body = (ByteBuf) packet.getBody();
+			}
+		}
 		
 		/**
 		 * 数据包
 		 */
-		if (packet.getPacketHead().getType().equals(PacketType.PCK_DATA) &&
-				packet.getBody() instanceof Message) {
-			Message.encode((Message) packet.getBody(), out);
+		if (body != null) {
+			packet.getPacketHead().setLength((short) body.readableBytes());
+			out.writeBytes(PacketHead.encode(packet.getPacketHead()));
+			out.writeBytes(body);
 		} else {
-			out.writeBytes((ByteBuf) packet.getBody());
+			packet.getPacketHead().setLength((short) 0);
+			out.writeBytes(PacketHead.encode(packet.getPacketHead()));
 		}
 	}
 }
