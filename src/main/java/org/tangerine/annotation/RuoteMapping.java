@@ -5,10 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.tangerine.Constant.MSGType;
+
 @Retention(RetentionPolicy.RUNTIME)  
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface MessageMapping {
+public @interface RuoteMapping {
 
 	public String value();
-	public String type();
+	public byte type() default MSGType.MSG_REQUEST;
 }

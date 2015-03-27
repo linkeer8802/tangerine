@@ -1,12 +1,14 @@
 package org.tangerine.net;
 
-import java.io.UnsupportedEncodingException;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+
 import org.tangerine.Constant.Config;
 import org.tangerine.Constant.PacketType;
+import org.tangerine.components.AppContext;
 import org.tangerine.protocol.Packet;
 import org.tangerine.protocol.PacketHead;
 import org.tangerine.util.JsonUtil;
@@ -30,28 +32,34 @@ public class PacketHandler {
 	}
 
 	private void handleHeartbeat(Connection connection) {
+		System.out.println("server: recive Heartbeat packet at " + new Date());
 		connection.scheduleDeliver(Packet.buildHeartbeatPacket(), 3000);
 	}
 
 	private void handleShakeACK(Connection connection) {
 		connection.setConnected(true);
+		System.out.println("handleShake success.");
 	}
 
 	private void handleHandshake(Connection connection, HandShakeRequest handShakeRequest) {
-		//保存客户端发来的握手信息
-		//发送握手响应
 		HandShakeResponse response = new HandShakeResponse();
 		response.setCode(200);
-		response.setHeartbeat(3);
+		response.setHeartbeat(AppContext.getInstance().getConfig().getHeartbeat());
+		//客户端发来的握手信息
+		if (!handShakeRequest.getVersion().equals("1.0")) {
+			response.setCode(501);
+		}
+		
 		
 		ByteBuf body = null;
 		try {
 			body = Unpooled.wrappedBuffer(JsonUtil
-					.toHtmlPrettyJson(response).getBytes(Config.DEFAULT_CHARTSET));
+					.toJson(response).getBytes(Config.DEFAULT_CHARTSET));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
+			response.setCode(500);
 		}
-		
+		//发送握手响应
 		connection.deliver(new Packet(new PacketHead(PacketType.PCK_HANDSHAKE, body.readableBytes()), body));
 	}
 }

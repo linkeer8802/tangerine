@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 
 import org.tangerine.net.Connection;
-import org.tangerine.net.MessageRouter;
+import org.tangerine.net.Router;
 import org.tangerine.net.PacketHandler;
 import org.tangerine.protocol.Message;
 import org.tangerine.protocol.Packet;
@@ -17,11 +17,11 @@ public class NettyIOSocket extends ChannelDuplexHandler {
 	private static final NettyIOSocket instance = new NettyIOSocket();
 	
 	private PacketHandler packetHandler;
-	private MessageRouter messageRouter;
+	private Router router;
 	
 	protected NettyIOSocket() {
 		this.packetHandler = new PacketHandler();
-		this.messageRouter = new MessageRouter();
+		this.router = Router.getInstance();
 	}
 	
 	public static NettyIOSocket getInstance() {
@@ -48,7 +48,7 @@ public class NettyIOSocket extends ChannelDuplexHandler {
 			Packet packet = (Packet) msg;
 			
 			if (packet.getBody() instanceof Message) {
-				messageRouter.route(connection, (Message) msg);
+				router.route(connection, (Message) packet.getBody());
 				
 			} else {
 				packetHandler.handle(connection, (Packet) msg);

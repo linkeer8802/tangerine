@@ -2,9 +2,11 @@ package org.tangerine.components;
 
 public class AppConfig {
 
-	private Boolean routeFlag;
+	private Boolean routeFlag = false;
 	
-	private Integer heartbeat;
+	private Integer heartbeat = 3;
+	
+	private Boolean useProtobuf = false;
 
 	public Boolean getRouteFlag() {
 		return routeFlag;
@@ -20,5 +22,13 @@ public class AppConfig {
 
 	public void setHeartbeat(Integer heartbeat) {
 		this.heartbeat = heartbeat;
+	}
+
+	public Boolean getUseProtobuf() {
+		return useProtobuf;
+	}
+
+	public void setUseProtobuf(Boolean useProtobuf) {
+		this.useProtobuf = useProtobuf;
 	}
 }

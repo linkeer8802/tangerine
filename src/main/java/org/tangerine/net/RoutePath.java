@@ -9,7 +9,7 @@ public class RoutePath {
 	private String action;
 
 	public RoutePath(String path) {
-		String[] paths = path.split(".");
+		String[] paths = path.split("\\.");
 		this.server = paths[0];
 		this.handler = paths[1];
 		this.action = paths[2];

@@ -4,6 +4,13 @@ public class RouterHandler {
 
 	private Object handler;
 
+	public RouterHandler() {}
+	
+	public RouterHandler(Object handler) {
+		super();
+		this.handler = handler;
+	}
+
 	public Object getHandler() {
 		return handler;
 	}

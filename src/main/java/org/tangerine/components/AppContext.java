@@ -2,7 +2,7 @@ package org.tangerine.components;
 
 public class AppContext {
 
-	public static final AppContext instance = new AppContext();
+	private static final AppContext instance = new AppContext();
 	
 	private AppConfig config;
 	
@@ -21,15 +21,7 @@ public class AppContext {
 		return config;
 	}
 
-	public void setConfig(AppConfig config) {
-		this.config = config;
-	}
-
 	public RouteDictionary getRouteDictionary() {
 		return routeDictionary;
-	}
-
-	public void setRouteDictionary(RouteDictionary routeDictionary) {
-		this.routeDictionary = routeDictionary;
 	}
 }
