@@ -33,7 +33,9 @@ public class PacketHandler {
 
 	private void handleHeartbeat(Connection connection) {
 		System.out.println("server: recive Heartbeat packet at " + new Date());
-		connection.scheduleDeliver(Packet.buildHeartbeatPacket(), 3000);
+		int delay = AppContext.getInstance().getConfig().getHeartbeat()*1000;
+		System.out.println("delay:" + delay);
+		connection.scheduleDeliver(Packet.buildHeartbeatPacket(), delay);
 	}
 
 	private void handleShakeACK(Connection connection) {
