@@ -48,7 +48,7 @@ public class Router {
 	
 	public void route(Connection connection, Message message) throws Exception {
 		
-		System.out.println("message body size:" + message.getBody().length);
+//		System.out.println("message body size:" + message.getBody().length);
 		
 		byte type = message.getMessageType();
 		RoutePath routePath = new RoutePath(message.getRoutePath());
@@ -94,7 +94,7 @@ public class Router {
 	public Object[] getHandlerMethodArgs(Method method, Connection connection,
 			Message message, ResponseMessage responseMessage) throws Exception {
 		
-		List<Object> args = new ArrayList<Object>(method.getParameterCount());
+		List<Object> args = new ArrayList<Object>();
 		Class<?>[] types = method.getParameterTypes();
 		for (Class<?> clz : types) {
 			
@@ -125,7 +125,7 @@ public class Router {
 				}
 			}
 		}
-		
+//		throw new RuntimeException("dfdf");
 		return args.toArray();
 	}
 }

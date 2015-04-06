@@ -1,15 +1,17 @@
 package org.tangerine.connector;
 
 import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 
 import org.tangerine.net.Connection;
-import org.tangerine.net.Router;
 import org.tangerine.net.PacketHandler;
+import org.tangerine.net.Router;
 import org.tangerine.protocol.Message;
 import org.tangerine.protocol.Packet;
 
+@Sharable
 public class NettyIOSocket extends ChannelDuplexHandler {
 	
 	private static final AttributeKey<Connection> connectionAttr = AttributeKey.valueOf("CONNECTION");
@@ -71,5 +73,9 @@ public class NettyIOSocket extends ChannelDuplexHandler {
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 			throws Exception {
 		cause.printStackTrace();
+		ctx.disconnect();
+		ctx.channel().disconnect();
+		ctx.channel().close();
+		ctx.channel().close();
 	}
 }

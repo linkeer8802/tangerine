@@ -39,7 +39,9 @@ public class Decoder extends ByteToMessageDecoder {
 		 * 数据包
 		 */
 		if (packetHead.getType().equals(PacketType.PCK_DATA)) {
-			packet.setBody(Message.decode(in));
+			// fix bug 用slice返回bytebuf的一个分片，可防止粘包
+			packet.setBody(Message.decode(in.slice(in.readerIndex(), packetHead.getLength())));
+			in.skipBytes(packetHead.getLength());
 		} else {
 			packet.setBody(in.readBytes(packetHead.getLength()));
 		}
