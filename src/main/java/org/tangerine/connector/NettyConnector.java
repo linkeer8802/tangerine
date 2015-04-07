@@ -9,6 +9,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import org.tangerine.codec.Decoder;
 import org.tangerine.codec.Encoder;
@@ -62,6 +63,7 @@ public class NettyConnector implements Connector {
 		public void initChannel(SocketChannel ch) throws Exception {
 			ch.pipeline().addLast("packetDecoder",  new Decoder());
 			ch.pipeline().addLast("packetEncoder",  new Encoder());
+//			ch.pipeline().addLast("ping", new IdleStateHandler(60, 15, 13));
 			ch.pipeline().addLast("ioSocket",  ioSocket);
 		}
 	}
