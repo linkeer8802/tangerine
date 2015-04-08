@@ -7,7 +7,7 @@ public class AppConfig {
 	private Integer heartbeat = 3;
 	
 	private Boolean useProtobuf = false;
-
+	
 	public Boolean getRouteFlag() {
 		return routeFlag;
 	}

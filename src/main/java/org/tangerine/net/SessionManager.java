@@ -1,8 +1,13 @@
 package org.tangerine.net;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.tangerine.Tangerine;
 
 public class SessionManager {
 
@@ -12,6 +17,11 @@ public class SessionManager {
 	
 	 private Map<String, Session> clientSessions = new ConcurrentHashMap<String, Session>();
 	
+	 private RedisTemplate<String, Object> redisTemplate;
+	 
+	 public SessionManager() {
+		 redisTemplate = Tangerine.getInstance().getContext().getBean("redisTemplate", RedisTemplate.class);
+	}
 	
     public static SessionManager getInstance() {
         if (instance == null) {
@@ -31,10 +41,18 @@ public class SessionManager {
 		clientSessions.put(session.getUname(), session);
 		session.getConnection().init(session);
 		
+		OnlineUser onlineUser = new OnlineUser();
+		BeanUtils.copyProperties(session, onlineUser);
+		
+		redisTemplate.opsForHash().put("TANGERINE-ONLINE-USERS", session.getUname(), onlineUser);
 	}
 	
 	public Session getSession(String uname) {
 		return clientSessions.get(uname);
+	}
+	
+	public Collection<Session> getAll() {
+		return clientSessions.values();
 	}
 	
 	public void removeSession(String uname) {

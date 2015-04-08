@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tangerine.Tangerine;
 import org.tangerine.Constant.Config;
 import org.tangerine.Constant.MSGType;
 import org.tangerine.annotation.RuoteMapping;
@@ -109,7 +110,7 @@ public class Router {
 				
 			} else {
 				try {
-					if (AppContext.getInstance().getConfig().getUseProtobuf()) {
+					if (Tangerine.getInstance().getContext().getBean(AppContext.class).getConfig().getUseProtobuf()) {
 						//probuf
 						@SuppressWarnings("rawtypes")
 						Codec codec = ProtobufProxy.create(clz);

@@ -6,6 +6,7 @@ import io.netty.buffer.Unpooled;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
+import org.tangerine.Tangerine;
 import org.tangerine.Constant.Config;
 import org.tangerine.Constant.PacketType;
 import org.tangerine.components.AppContext;
@@ -33,7 +34,7 @@ public class PacketHandler {
 
 	private void handleHeartbeat(Connection connection) {
 		System.out.println("server: recive Heartbeat packet at " + new Date());
-		int delay = AppContext.getInstance().getConfig().getHeartbeat()*1000;
+		int delay = Tangerine.getInstance().getContext().getBean(AppContext.class).getConfig().getHeartbeat()*1000;
 //		System.out.println("delay:" + delay);
 		connection.scheduleDeliver(Packet.buildHeartbeatPacket(), delay);
 	}
@@ -46,7 +47,7 @@ public class PacketHandler {
 	private void handleHandshake(Connection connection, HandShakeRequest handShakeRequest) {
 		HandShakeResponse response = new HandShakeResponse();
 		response.setCode(200);
-		response.setHeartbeat(AppContext.getInstance().getConfig().getHeartbeat());
+		response.setHeartbeat(Tangerine.getInstance().getContext().getBean(AppContext.class).getConfig().getHeartbeat());
 		//客户端发来的握手信息
 		if (!handShakeRequest.getVersion().equals("1.0")) {
 			response.setCode(501);

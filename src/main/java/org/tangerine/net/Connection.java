@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.tangerine.Constant.Config;
 import org.tangerine.Constant.MSGType;
+import org.tangerine.Tangerine;
 import org.tangerine.components.AppConfig;
 import org.tangerine.components.AppContext;
 import org.tangerine.protocol.Message;
@@ -40,7 +41,7 @@ public class Connection {
 	}
 	
 	public void deliver(Integer reqId, String route, Object body) {
-		AppConfig config = AppContext.getInstance().getConfig();
+		AppConfig config = Tangerine.getInstance().getContext().getBean(AppContext.class).getConfig();
 		Message message = new Message();
 		
 		if (reqId == null) {
@@ -58,7 +59,7 @@ public class Connection {
 			boolean routeFlag = false;
 			
 			if (config.getRouteFlag()) {
-				Short routeId = AppContext.getInstance().getRouteDictionary().getRouteId(route);
+				Short routeId = Tangerine.getInstance().getContext().getBean(AppContext.class).getRouteDictionary().getRouteId(route);
 				if (routeId != null) {
 					routePath = routeId.toString();
 					routeFlag = true;
